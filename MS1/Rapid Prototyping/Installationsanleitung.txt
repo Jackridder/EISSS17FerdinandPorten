@@ -1,0 +1,10 @@
+Anleitung zum Starten:
+1. mongodb installieren und dann starten
+    1. cd Username/mongodb/bin/
+    2. ./mongod
+2. Server starten
+    1. cd EISSS17FerdinandPorten/MS1/Rapid\ Prototyping/Server/
+    2. node app.js
+3. Android Studio installieren
+    1. Projekt importieren
+    2. Projekt starten
