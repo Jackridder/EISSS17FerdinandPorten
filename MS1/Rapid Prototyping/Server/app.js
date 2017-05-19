@@ -10,6 +10,7 @@ var weather = {};
 var average = 0;
 var userVol = 0;
 var userWea = 0;
+var tempNoise = 0;
 
 const roomVolume = 60;
 const lowVolume = 40;
@@ -104,7 +105,7 @@ app.post('/insertUserData', function (req,res,next){
 
 app.get('/Empfehlung', function (req, res){
   //Nur für den Prototypen:
-  //getWeather('2913761');
+  getWeather('2913761');
 
   //--Normaler Code--
   var weatherrecommend = "";
@@ -136,11 +137,9 @@ app.get('/Empfehlung', function (req, res){
       console.log("Temp: "+weatherrecommend);
       console.log("BenutzerAngabe Wetter: " + userWea);
       console.log("BenutzerAngabe Lautstärke: " + userVol);
-      console.log("Wird dem Benutzer die Lautstärke empfohlen? " + getNoise(userVol));
     });
   });
-  //console.log("UserNoise: " + getNoise(userVol));
-  res.end(getNoise(userVol) == 0 && weatherrecommend == userWea ? "Der Ort wird Ihnen empfohlen" : "Der Ort entspricht nicht Ihren Kriterien");
+  res.end(tempNoise == 0 && weatherrecommend == userWea ? "Der Ort wird Ihnen empfohlen" : "Der Ort entspricht nicht Ihren Kriterien");
 });
 
 function delAll(){
@@ -214,18 +213,18 @@ function getNoise(volume){
           }
         }
         if(difference/coefficient <= 0.2){
-          console.log("Empfohlen? 0 = Ja, 1 = Nein : " + (totalAverage <= noise+(totalAverage-noise) ? "0" : "1"));
+          tempNoise = totalAverage <= noise+(totalAverage-noise) ? 0 : 1;
           return(totalAverage <= noise+(totalAverage-noise) ? "0" : "1");
         }
         else{
           average = average/difference;
-          console.log("Empfohlen? 0 = Ja, 1 = Nein : " + (average <= noise+(totalAverage-noise) ? "0" : "1"));
-          return(average <= noise+(totalAverage-noise) ? "0" : "1");
+          tempNoise = average <=(noise+(totalAverage-noise)) ? 0 : 1;
+          return(average <= (noise+(totalAverage-noise)) ? "0" : "1");
         }
       }
       else{
         average = average/difference;
-        console.log("Empfohlen? 0 = Ja, 1 = Nein : " + (average <= noise ? "0" : "1"));
+        tempNoise = average <= noise ? 0 : 1;
         return(average <= noise ? "0" : "1");
       }
     });
