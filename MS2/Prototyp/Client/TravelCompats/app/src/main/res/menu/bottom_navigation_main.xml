@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_home"
+        android:enabled="true"
+        android:icon="@drawable/ic_home"
+        android:title="Start"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/action_search"
+        android:enabled="true"
+        android:icon="@drawable/ic_search"
+        android:title="Suchen"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/action_upload"
+        android:enabled="true"
+        android:icon="@drawable/ic_upload"
+        android:title="Hochladen"
+        app:showAsAction="ifRoom"
+        />
+    <!--
+    <item
+        android:id="@+id/action_settings"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings"
+        android:title="Einstellungen"
+        app:showAsAction="ifRoom"
+        />
+    -->
+</menu>

@@ -36,6 +36,7 @@ public class Register extends AppCompatActivity {
     private EditText username;
     private EditText password;
     private TextView alert;
+    public static String user;
     private String server_url = "http://192.168.0.248:3000";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +74,7 @@ public class Register extends AppCompatActivity {
                             params.put("username", username.getText().toString());
                             params.put("email", email.getText().toString());
                             params.put("password", password.getText().toString());
+                            user = username.getText().toString();
                             return params;
                         }
                     };
