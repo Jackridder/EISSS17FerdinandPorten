@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class Home extends AppCompatActivity {
     private TextView alert;
-    private String user;
+    public static String user;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);

@@ -23,9 +23,15 @@ app.get('/deleteDB', function(req,res){
   delAll();
 });
 
-app.post('/insertAudio', function (req,res,next){
-  var item = {
-    aufnahme: req.body.aufnahme,
+app.post('/audioData',function(req,res){
+	var noise = req.body.noise;
+  console.log(noise);
+});
+
+/*app.post('/audioData', function (req,res,next){
+  var items = {
+    username: req.body.username,
+    noise: req.body.noise,
   }
   mongo.connect(url, function(err, db){
     if(err){
@@ -33,14 +39,14 @@ app.post('/insertAudio', function (req,res,next){
       console.log(err);
     }
     else{
-      db.collection('audioData').insertOne(item, function(err, result){
-        console.log("Inserted Audio: " + item);
+      db.collection('audioData').insertOne(items, function(err, result){
+        console.log("Inserted Audio: " + items.noise);
         db.close();
       });
     }
   });
 });
-
+*/
 app.post('/userData', function (req,res,next){
   var items = {
     username: req.body.username,
