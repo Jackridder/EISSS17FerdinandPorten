@@ -17,9 +17,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Header Design Anpassung
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
 
+        //Register aufrufen
         b_Register = (Button) findViewById(R.id.register);
         b_Register.setOnClickListener(new View.OnClickListener(){
             public void onClick (View v){
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Sign aufrufen
         b_SignIn = (Button) findViewById(R.id.signin);
         b_SignIn.setOnClickListener(new View.OnClickListener(){
                 public void onClick (View v){

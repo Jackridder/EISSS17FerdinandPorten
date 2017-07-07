@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+//Erforderliche Klasse für Multi Selection DropDown Menu
 public class MultiSpinner extends Spinner implements
         OnMultiChoiceClickListener {
 

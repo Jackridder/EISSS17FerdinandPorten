@@ -45,14 +45,21 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
+        //Header Design Anpassung
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
         alert = (TextView) findViewById(R.id.alert);
+
+        //Benutzername beim einloggen:
         user = Sign.user;
+
+        //Sollte der Benutzer sich registrieren wird er automatisch angemeldet und der Name muss von Register geholt werden.
         if (user == null) {
             user = Register.user;
         }
         wellcomeMessage();
+
+        //Navigationsleiste
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -66,6 +73,7 @@ public class Home extends AppCompatActivity {
                     case R.id.action_upload:
                         startActivity(new Intent(Home.this, Upload.class));
                         break;
+                    //Settings sollte eigentlich in die Navigationsleiste. Mit der erstellten Leiste sind allerdings nur bis zu 3 Elemente erlaubt
                     /*case R.id.action_settings:
 
                         break;
@@ -82,14 +90,16 @@ public class Home extends AppCompatActivity {
         config = (Button) findViewById(R.id.config);
         recommend = (Button) findViewById(R.id.recommendation);
 
+        //Profil bearbeiten
         config.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(Home.this, Profile.class));
             }
         });
+        //Empfehlung aufrufen
         recommend.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
+                startActivity(new Intent(Home.this, Recommend.class));
             }
         });
 

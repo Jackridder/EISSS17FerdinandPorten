@@ -69,13 +69,12 @@ public class Upload extends AppCompatActivity {
     private boolean used = false;
     // Requesting permission to RECORD_AUDIO, ACCESS_FINE_LOCATION, ACCES_COARSE_LOCATION
     private boolean permissionToRecordAccepted = false;
-    private boolean permissionToAccesFine = false;
-    private boolean permissionToAccesCoarse = false;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO};//, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     @Override
 
 
+    //Nach Rechten Fragen erst ab 6.0 möglich
     public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults){
 
         switch (requestCode) {
@@ -94,8 +93,10 @@ public class Upload extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload);
+        //Header Design einstellen
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
+        //Navigationsleiste
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -122,8 +123,11 @@ public class Upload extends AppCompatActivity {
         alert = (TextView) findViewById(R.id.alert);
         record = (Button) findViewById(R.id.record);
         rating = (TextView) findViewById(R.id.rating);
+        //Pfad von der Aufnahme
         mFileName = getExternalCacheDir().getAbsolutePath();
         mFileName += "/noise.3gp";
+        //Wird aufgenommen, startet die Aufnahme und der Buttontext wird angepasst
+        //Findet eine Aufnahme statt und der Button wird erneut betätigt, wird alles zurückgesetzt
         record.setOnClickListener(new View.OnClickListener() {
             boolean mStartRecording = true;
 
@@ -139,9 +143,12 @@ public class Upload extends AppCompatActivity {
             }
         });
 
+        //Daten sollen hochgeladen werden
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                //Wenn alle Felder ausgefüllt sind (ausgenommen sind Audio und Rating, da muss mindestens eins von beidem ausgefüllt sein)
                 if((longitude != 0 && latitude != 0 && maxAmp != 0) || (longitude != 0 && latitude != 0 && (!rating.getText().toString().equals("Bewertung für aktuellen Standort") && !rating.getText().toString().equals("")))){
+                    //Erstelle Request
                     final RequestQueue requestQueue = Volley.newRequestQueue(Upload.this);
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
                         public void onResponse(String response) {
@@ -162,6 +169,7 @@ public class Upload extends AppCompatActivity {
                             params.put("longitude", longitude+"");
                             params.put("latitude", latitude+"");
                             params.put("username", Home.user);
+                            //Sollte das Rating leer sein, dann wird ein leerer String übermittelt
                             params.put("rating", rating.getText().equals("Bewertung für aktuellen Standort") ? "" : rating.getText().toString());
                             return params;
                         }
@@ -175,6 +183,7 @@ public class Upload extends AppCompatActivity {
             }
         });
 
+        //LocationManager und -Listener sind für die GPS Koordinaten
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
@@ -182,13 +191,14 @@ public class Upload extends AppCompatActivity {
                 if(!used) {
                     longitude = location.getLongitude();
                     latitude = location.getLatitude();
+                    //Request starten
                     final RequestQueue requestQueue = Volley.newRequestQueue(Upload.this);
-
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
 
                         public void onResponse(String response) {
+                            //Dem Benutzer wird der aktuelle Standort angezeigt zu welchem er Daten hochladen möchte
                             Log.d("Location","Empfangen ");
-                            alert.setText(Html.fromHtml(response));
+                            alert.setText(response);
                             requestQueue.stop();
                         }
                     }, new Response.ErrorListener() {
@@ -200,7 +210,7 @@ public class Upload extends AppCompatActivity {
                     }) {
                         //Post Method
                         protected Map<String, String> getParams() {
-                            Log.d("Post", "Hat geklappt");
+                            Log.d("Post", "Koordinaten übermittelt");
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("longitude", longitude+"");
                             params.put("latitude", latitude+"");
@@ -217,7 +227,7 @@ public class Upload extends AppCompatActivity {
 
 
             }
-
+            //Methoden sind noch leer, da für PoC irrelevant
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
 
@@ -242,6 +252,7 @@ public class Upload extends AppCompatActivity {
     private void locationUpdate(){
         //Für Version ab Android 6.0
         if(Build.VERSION.SDK_INT >= 23){
+            //Fehlen Rechte, werden sie angefordert
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -253,11 +264,13 @@ public class Upload extends AppCompatActivity {
                         Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET},10);
                 return;
             }
+            //Sind alle Rechte gegeben, dürfen die Koordinaten ermittelt werden
             else{
                 locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
             }
         }
         else{
+            //Für ältere Versionen als Android 6.0
             locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
         }
 
@@ -272,12 +285,14 @@ public class Upload extends AppCompatActivity {
     }
 
     private void startRecording() {
+        //Mediarecorder wird erstellt für die Aufnahme
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(mFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         timer = new Timer();
+        //Einstellung für im 500ms Takt
         timer.scheduleAtFixedRate(new RecorderTask(mRecorder), 0, 500);
 
         try {
@@ -307,6 +322,7 @@ public class Upload extends AppCompatActivity {
             this.recorder = recorder;
         }
 
+        //Setze maxAmp auf aufgenommenen Wert (nur wenn der neue Wert größer als der alte ist)
         public void run() {
             runOnUiThread(new Runnable() {
                 public void run() {

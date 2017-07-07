@@ -41,8 +41,10 @@ public class Register extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
+        //Header Design Anpassung
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
+        //Zurück Button im Header
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         alert = (TextView) findViewById(R.id.tv_Alert);
@@ -52,10 +54,12 @@ public class Register extends AppCompatActivity {
         register = (Button) findViewById(R.id.register);
         register.setOnClickListener(new View.OnClickListener(){
             public void onClick (View v){
+                //Alle Felder müssen ausgefüllt sein, ansonsten kann man sich nicht registrieren
                 if( TextUtils.isEmpty(email.getText().toString()) || TextUtils.isEmpty(username.getText().toString()) || TextUtils.isEmpty(password.getText().toString())){
                     alert.setText("Bitte alle Felder ausfüllen!");
                 }
                 else{
+                    //Erstelle Request an Server.
                     final RequestQueue requestQueue = Volley.newRequestQueue(Register.this);
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url+"/userData", new Response.Listener<String>() {
                         public void onResponse(String response) {
@@ -87,7 +91,7 @@ public class Register extends AppCompatActivity {
             }
         });
     }
-
+    //Zurück zum Home Menü
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:

@@ -24,6 +24,7 @@
         <activity android:name=".Search"></activity>
         <activity android:name=".Upload"></activity>
         <activity android:name=".Profile"></activity>
+        <activity android:name=".Recommend"></activity>
     </application>
 
 </manifest>

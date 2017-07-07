@@ -12,7 +12,8 @@ var params = {
   //Mensa: '51.022166,7.562483'
   //Bei uns: '51.02609198,7.55402856'
   //China Restaurant: 51.025729, 7.560473
-  radius: 20
+  radius: 20,
+  type: ""
 };
 
 var keyWordHead = ["FAMILIE","PERSONAL","GASTFREUNDLICH","GERUCH","RIECHT","ROCH","ESSEN","GERICHT"];
@@ -30,17 +31,38 @@ app.listen(3000,function(){
 app.use(jsonParser);
 
 app.get('/ort', function(req,res){
+  params.radius = 500;
   console.log(getOrt()+"");
 });
 
-app.get('/', function(req,res){
+app.get('/testDaten', function(req,res){
+  console.log("Datenbank gelöscht");
+  delAll();
   testDaten();
   console.log("Testdaten eingefügt");
 });
 
-app.get('/deleteDB', function(req,res){
-  delAll();
-  console.log("Datenbank gelöscht!");
+app.get('/testRatings', function(req,res){
+  mongo.connect(url, function(err, db){
+    if(err){
+      console.log("Fehler");
+      console.log(err);
+    }
+    else{
+      var cursor = db.collection('userRatings').find();
+      cursor.forEach(function(doc,err){
+        if(err){
+          console.log("MongoDB kann auf userRatings nicht zugreifen");
+          console.log(err);
+        }
+        else{
+          checkKeywords(doc);
+        }
+      }, function() {
+          db.close();
+      });
+    }
+  });
 });
 
 app.post('/audioData',function(req,res){
@@ -203,27 +225,21 @@ app.post('/login', function(req,res,next){
 
 
 
-app.get('/Empfehlung', function (req, res){
+app.post('/Empfehlung', function (req, res){
+  params.radius = 500;
+  //params.location=req.body.latitude+","+req.body.longitude;
+  params.type = req.body.type;
+  if(req.body.username == undefined){
+    getOrt("restaurant");
+    //getOrt(params.type);
+  }
+  else{
+
+  }
+
+
   //Nur für den Prototypen:
   //getWeather('2913761');
-
-  mongo.connect(url, function(err,db){
-    var resultArray = [];
-    var cursor = db.collection('userRatings').find();
-    cursor.forEach(function(doc,err){
-      resultArray.push(doc);
-    }, function() {
-      for(var i = 0; i < resultArray.length; i++){
-        acceptKeyWords = 0;
-        //console.log("Rating: " + checkKeywords(resultArray[i].rating));
-        checkKeywords(resultArray[i]);
-        if(acceptKeyWords == 1){
-
-        }
-      }
-      db.close();
-    });
-  });
 
   //--Normaler Code--
   /*
@@ -351,8 +367,9 @@ function getNoise(volume){
   });
 }
 
-function getOrt(){
+function getOrt(type){
   var items = [];
+  console.log("type: " + type);
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function(){
     if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
@@ -386,7 +403,10 @@ function getOrt(){
 
       }
       else{
-        console.log(data.results[0].name);
+        for(var i = 0; i < data.results.length; i++){
+          console.log("Ort: " + data.results[i].name);
+        }
+        //console.log(data.results[0].name);
         currentloc = data.results[0].name;
         return data.results[0].name;
       }
@@ -394,7 +414,7 @@ function getOrt(){
   }
 
   var googleurl = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=';
-  xmlhttp.open("GET",googleurl + params.location + "&radius=" + params.radius + "&type=restaurant&key=" + googleapi, true);
+  xmlhttp.open("GET",googleurl + params.location + "&radius=" + params.radius + "&type="+type+"&key=" + googleapi, true);
   //xmlhttp.open("GET",googleurl + params.location + "&rankby=distance" + "&type=restaurant&key=" + googleapi, true);
   //xmlhttp.open("GET",googleurl + params.location + "&rankby=distance" + "&key=" + googleapi, true);
   xmlhttp.send();
@@ -407,27 +427,134 @@ function testDaten(){
     password: "test",
     email: "test@test.de"
   };
+  /*
+  Ort: Rhodos Hab
+Ort: 32 Süd Hab
+Ort: Mensa TH Köln Hab
+Ort: Dornseifers
+Ort: Thairestaurant Bambusgarten Gummersbach
+*/
 
   var userRatings = [{
     username: "test",
     rating: "War mit der Familie da und fand es toll.",
     location: "Mensa TH Köln",
-    noise: ""
+    noise: 43
+  },{
+    username: "test",
+    noise: 40,
+    location: "Thairestaurant Bambusgarten Gummersbach",
+    rating: "Personal war super nett"
+  },{
+    username: "test",
+    noise: 39,
+    location: "Thairestaurant Bambusgarten Gummersbach",
+    rating: "Sehr gut für die Familie"
+  },{
+    username: "test",
+    noise: 57,
+    location: "Thairestaurant Bambusgarten Gummersbach",
+    rating: "Es roch sehr gut"
+  },{
+    username: "test",
+    noise: 51,
+    location: "Thairestaurant Bambusgarten Gummersbach",
+    rating: "Das Essen dort war sehr lecker!"
+  },{
+    username: "test",
+    noise: 80,
+    location: "Dornseifers",
+    rating: "Der Geruch war schlecht"
+  },{
+    username: "test",
+    noise: 70,
+    location: "Dornseifers",
+    rating: "Empfehlenswert für die Familie. Absolut gut."
+  },{
+    username: "test",
+    noise: 49,
+    location: "32 Süd",
+    rating: "Es roch unangenehm"
+  },{
+    username: "test",
+    noise: 65,
+    location: "32 Süd",
+    rating: "Für die Familie nur absolut zu empfehlen. Sehr gut"
+  },{
+    username: "test",
+    noise: 42,
+    location: "32 Süd",
+    rating: "Sehr nettes Personal"
+  },{
+    username: "test",
+    rating: "Das Essen war sehr gut",
+    location: "32 Süd",
+    noise: 50
+  },{
+    username: "test",
+    rating: "Das Essen war okay",
+    location: "32 Süd",
+    noise: 57
+  },{
+    username: "test",
+    rating: "Unheimlich unfreundliches Personal",
+    location: "Mensa TH Köln",
+    noise: 40
+  },{
+    username: "test",
+    rating: "Das Essen war unglaublich lecker.",
+    location: "32 Süd",
+    noise: 45
+  },{
+    username: "test",
+    rating: "Das Personal war super nett",
+    location: "Dornseifers",
+    noise: 57
+  },{
+    username: "test",
+    rating: "Das Essen war lecker.",
+    location: "Dornseifers",
+    noise: 49
+  },{
+    username: "test",
+    rating: "Das Essen war unglaublich schlecht.",
+    location: "Rhodos",
+    noise: 50
+  },{
+    username: "Hans",
+    rating: "Das Essen war okay.",
+    location: "Rhodos",
+    noise: 57
   },{
     username: "Max",
     rating: "Das Essen war unglaublich lecker.",
-    location: "Pizzeria Ristorante Pinocchio",
-    noise: ""
+    location: "Mensa TH Köln",
+    noise: 40
   },{
     username: "test",
     noise: 58,
     location: "Mensa TH Köln",
-    rating: ""
+    rating: "Es roch unangenehm"
+  },{
+    username: "test",
+    noise: 62,
+    location: "Rhodos",
+    rating: "Es roch sehr gut"
   },{
     username: "test",
     noise: 61,
-    location: "Mensa TH Köln",
-    rating: ""
+    location: "Rhodos",
+    rating: "Das angebotene Gericht war ganz gut"
+  },{
+    username: "test",
+    noise: 70,
+    location: "Rhodos",
+    rating: "Für die Famile ganz gut geeignet"
+  },{
+    username: "test",
+    noise: 78,
+    location: "Rhodos",
+    rating: "Das Personal war sehr nett"
   }];
 
   var walkingroutes = [{
@@ -500,11 +627,11 @@ function checkKeywords(request){
   rating = rating.toUpperCase();
   keyWordHead.forEach(function(doc,err){
     if(rating.search(doc) >= 0){
-      console.log("Erster Begriff gefunden: " + doc);
+      //console.log("Erster Begriff gefunden: " + doc);
       correctWords--;
       keyWordRating.forEach(function(doc2,err){
         if(rating.search(doc2) >= 0){
-          console.log("Zweiter Begriff gefunden: " + doc2);
+          //console.log("Zweiter Begriff gefunden: " + doc2);
           correctWords--;
           acceptKeyWords = 1;
           mongo.connect(url, function(err, db){

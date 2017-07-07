@@ -42,28 +42,35 @@ public class Sign extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signin);
+        //Header Design
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
+        //Zurück Button einfügen
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         alert = (TextView) findViewById(R.id.alert);
         username = (EditText) findViewById(R.id.e_userName);
         password = (EditText) findViewById(R.id.e_password);
 
+        //Einloggen
         signin = (Button) findViewById(R.id.signin);
         signin.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                //Alle Felder müssen ausgefüllt sein
                 if (TextUtils.isEmpty(username.getText().toString()) || TextUtils.isEmpty(password.getText().toString())) {
                     alert.setText("Bitte alle Felder ausfüllen!");
                 } else {
+                    //Request an Server erstellen
                     final RequestQueue requestQueue = Volley.newRequestQueue(Sign.this);
 
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/login", new Response.Listener<String>() {
                         public void onResponse(String response) {
                             Log.e("Response", response);
+                            //Benutzer ist nicht angelegt
                             if (response.equals("0")) {
                                 alert.setText("Benutzer konnte nicht gefunden werden. Versuchen Sie es nochmal.");
                             } else {
+                                //Benutzer ist angelegt und wird angemeldet
                                 user = response;
                                 startActivity(new Intent(Sign.this, Home.class));
                             }
@@ -93,6 +100,7 @@ public class Sign extends AppCompatActivity {
         });
     }
 
+    //Zurück zum Home Menü
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:

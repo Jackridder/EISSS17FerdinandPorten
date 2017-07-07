@@ -40,13 +40,17 @@ public class Profile extends AppCompatActivity implements MultiSpinner.OnMultipl
         alert = (TextView) findViewById(R.id.alert);
         save = (Button) findViewById(R.id.save);
         children = (CheckBox) findViewById(R.id.children);
+
+        //Header Design Anpassung
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#77CC00")));
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#8F7A70'> TravelCompats </font>"));
+        //Spinner Auswahlmöglichkeiten
         final String[] array = {"Deutsch", "Englisch", "Chinesisch", "Italienisch", "Türkisch"};
         final MultiSpinner multiSelectionSpinner = (MultiSpinner) findViewById(R.id.language);
 
+        //Übergebe "Sprachen", welches Element ist vorausgewählt (Deutsch)
         multiSelectionSpinner.setItems(array);
-        //multiSelectionSpinner.setSelection(new int[]{0});
+        multiSelectionSpinner.setSelection(new int[]{0});
         multiSelectionSpinner.setListener(this);
 
         alert.setText("Bitte folgende Einstellungen vornehmen");
@@ -54,9 +58,11 @@ public class Profile extends AppCompatActivity implements MultiSpinner.OnMultipl
 
         save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                //Mindestens ein Element muss ausgewählt sein.
                 if(!multiSelectionSpinner.getSelectedItemsAsString().isEmpty()){
                     final RequestQueue requestQueue = Volley.newRequestQueue(Profile.this);
 
+                    //Erstelle Request an Server.
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/userData/config", new Response.Listener<String>() {
 
                         public void onResponse(String response) {
