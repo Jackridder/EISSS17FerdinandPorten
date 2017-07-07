@@ -15,8 +15,11 @@ var params = {
   radius: 20
 };
 
+var keyWordHead = ["FAMILIE","PERSONAL","GASTFREUNDLICH","GERUCH","RIECHT","ROCH","ESSEN","GERICHT"];
+var keyWordRating = ["GUT", "SCHLECHT", "NETT","UNFREUNDLICH","SCHRECKLICH","UNANGENEHM", "TOLL","LECKER", "OKAY"];
 var currentloc = "";
 var accept = 0;
+var acceptKeyWords = 0;
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.listen(3000,function(){
@@ -64,11 +67,13 @@ app.post('/audioData',function(req,res){
         }
         else{
           db.collection('audioData').insertOne(items, function(err, result){
-            console.log("Inserted audio: " + items.noise);
+            console.log("Inserted rating for current Location: " + items.location);
+            checkKeywords(items);
             db.close();
           });
         }
       });
+
     }
     else{
       console.log("Kein aktueller Standort");
@@ -200,9 +205,28 @@ app.post('/login', function(req,res,next){
 
 app.get('/Empfehlung', function (req, res){
   //Nur für den Prototypen:
-  getWeather('2913761');
+  //getWeather('2913761');
+
+  mongo.connect(url, function(err,db){
+    var resultArray = [];
+    var cursor = db.collection('userRatings').find();
+    cursor.forEach(function(doc,err){
+      resultArray.push(doc);
+    }, function() {
+      for(var i = 0; i < resultArray.length; i++){
+        acceptKeyWords = 0;
+        //console.log("Rating: " + checkKeywords(resultArray[i].rating));
+        checkKeywords(resultArray[i]);
+        if(acceptKeyWords == 1){
+
+        }
+      }
+      db.close();
+    });
+  });
 
   //--Normaler Code--
+  /*
   var weatherrecommend = "";
   mongo.connect(url, function(err,db){
     var resultArray = [];
@@ -235,6 +259,7 @@ app.get('/Empfehlung', function (req, res){
     });
   });
   res.end(tempNoise == 0 && weatherrecommend == userWea ? "Der Ort wird Ihnen empfohlen" : "Der Ort entspricht nicht Ihren Kriterien");
+*/
 });
 
 function delAll(){
@@ -390,7 +415,7 @@ function testDaten(){
     noise: ""
   },{
     username: "Max",
-    rating: "Es war unglaublich lecker.",
+    rating: "Das Essen war unglaublich lecker.",
     location: "Pizzeria Ristorante Pinocchio",
     noise: ""
   },{
@@ -467,6 +492,91 @@ function testDaten(){
     }
   });
 }
+
+function checkKeywords(request){
+  var correctWords = 2;
+  var rating = request.rating;
+  var loc = request.location;
+  rating = rating.toUpperCase();
+  keyWordHead.forEach(function(doc,err){
+    if(rating.search(doc) >= 0){
+      console.log("Erster Begriff gefunden: " + doc);
+      correctWords--;
+      keyWordRating.forEach(function(doc2,err){
+        if(rating.search(doc2) >= 0){
+          console.log("Zweiter Begriff gefunden: " + doc2);
+          correctWords--;
+          acceptKeyWords = 1;
+          mongo.connect(url, function(err, db){
+            if(err){
+              console.log("Fehler");
+              console.log(err);
+            }
+            else{
+              var items = {};
+              if(doc == "FAMILIE"){
+                items = {
+                  location: loc,
+                  fam: doc2,
+                  smell: "",
+                  hosp: "",
+                  taste: ""
+                }
+              }
+              else if(doc == "PERSONAL" || doc == "GASTFREUNDLICH"){
+                  items = {
+                    location: loc,
+                    fam: "",
+                    smell: "",
+                    hosp: doc2,
+                    taste: ""
+                  }
+                }
+                else if(doc == "GERUCH" || doc == "RIECHT" || doc == "ROCH"){
+                    items = {
+                      location: loc,
+                      fam: "",
+                      smell: doc2,
+                      hosp: "",
+                      taste: ""
+                    }
+                  }
+                  else{
+                    items = {
+                      location: loc,
+                      fam: "",
+                      smell: "",
+                      hosp: "",
+                      taste: doc2
+                    }
+                  }
+                  db.collection('rating').insertOne(items, function(err, result){
+                      console.log("Inserted rating: " + doc);
+                      db.close();
+                    });
+              }
+            });
+        }
+      });
+    }
+  });
+}
+  //return 1;
+  /*for(var i = 0; i < keyWordHead.length; i++){
+    console.log("keyWordSearch: " + keyWordHead[i]);
+    if(rating.search(keyWordHead[i]) >= 0){
+      console.log("Erster Begriff gefunden: " + keyWordHead[i]);
+      correctWords++;
+      for(var j = 0; j < keyWordRating.length;i++){
+        //console.log("KeyWordSearch: " + keyWordRating[i]);
+        if(rating.search(keyWordRating[j]) >= 0){
+          console.log("Zweiter Begriff gefunden: " + keyWordRating[i]);
+          correctWords++;
+        }
+      }
+    }
+  }
+  */
 
 // Für zukünftiges: res.end(average <= 40 ? "0" : average > 40 && average <= 60 ? "1" : average > 60 ? "2" : "1");
 //Metrik Atmosphäre

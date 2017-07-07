@@ -141,8 +141,6 @@ public class Upload extends AppCompatActivity {
 
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d("Standard Text", !rating.getText().toString().equals("Bewertung für aktuellen Standort")+"");
-                Log.d("Leerer Text", !rating.getText().toString().equals("")+"" );
                 if((longitude != 0 && latitude != 0 && maxAmp != 0) || (longitude != 0 && latitude != 0 && (!rating.getText().toString().equals("Bewertung für aktuellen Standort") && !rating.getText().toString().equals("")))){
                     final RequestQueue requestQueue = Volley.newRequestQueue(Upload.this);
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
@@ -189,7 +187,7 @@ public class Upload extends AppCompatActivity {
                     StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
 
                         public void onResponse(String response) {
-                            Log.d("Response2","Hat geklappt ");
+                            Log.d("Location","Empfangen ");
                             alert.setText(Html.fromHtml(response));
                             requestQueue.stop();
                         }
