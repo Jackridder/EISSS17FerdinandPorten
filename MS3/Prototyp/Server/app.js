@@ -168,7 +168,7 @@ app.get('/atmosphere', function(req,res){
     });
 });
 
-app.post('/audioData',function(req,res){
+app.put('/audioData',function(req,res){
   //Kommentar muss rausgenommen werden für echte Werte!
   //params.location=req.body.latitude+","+req.body.longitude;
   //getOrt();
@@ -217,28 +217,77 @@ app.post('/audioData',function(req,res){
 });
 
 //Benutzer wird registriert
-app.post('/userData', function (req,res,next){
-  var items = {
-    username: req.body.username,
-    password: req.body.password,
-    email: req.body.email
-  }
-  mongo.connect(url, function(err, db){
-    if(err){
-      console.log("Fehler");
-      console.log(err);
+app.put('/userData', function (req,res,next){
+  if(req.body.email == undefined){
+    var items = {
+      username: req.body.username,
+      password: req.body.password
     }
-    else{
-      db.collection('user').insertOne(items, function(err, result){
-        console.log("Inserted user: " + items.username);
-        db.close();
+    //Ist der Benutzer registriert wird er angemeldet.
+    mongo.connect(url, function(err, db){
+      if(err){
+        console.log("Fehler beim Herstellen einer Verbindung zu MongoDB");
+        console.log(err);
+      }
+      else{
+        var resultArray = [];
+        var cursor = db.collection('user').find();
+        cursor.forEach(function(doc,err){
+          if(err){
+            console.log("MongoDB kann auf user nicht zugreifen");
+            console.log(err);
+          }
+          else{
+              resultArray.push(doc);
+            }
+          }, function() {
+              db.close();
+              var counter = 0;
+              //Überprüfung der Login Daten
+              for (var i = 0; i < resultArray.length; i++){
+                counter++;
+                console.log(resultArray[i].username);
+                if(resultArray[i].username == items.username && resultArray[i].password == items.password){
+                  counter--;
+                  console.log("Benutzer gefunden!");
+                  accept = 1;
+                  //Anmeldung erfolgreich
+                  res.end(resultArray[i].username);
+                }
+              }
+              //Anmeldung nicht erfolgreich
+              if(counter == resultArray.length){
+                console.log("Benutzer nicht gefunden");
+                res.end("0");
+                accept = 0;
+              }
+          });
+        }
       });
+  }
+  else{
+    var items = {
+      username: req.body.username,
+      password: req.body.password,
+      email: req.body.email
     }
-  });
+    mongo.connect(url, function(err, db){
+      if(err){
+        console.log("Fehler");
+        console.log(err);
+      }
+      else{
+        db.collection('user').insertOne(items, function(err, result){
+          console.log("Inserted user: " + items.username);
+          db.close();
+        });
+      }
+    });
+  }
 });
 
 //Benutzer hat sein Profil überarbeitet.
-app.post('/userData/config', function (req,res,next){
+app.put('/userData/config', function (req,res,next){
   var items = {
     username: req.body.username,
     language: req.body.language,
@@ -292,56 +341,7 @@ app.post('/userData/config', function (req,res,next){
     });
   });
 
-//TO-DO Inhalt der Ressource auf eine semantisch korrekte Ressource auslagern (z.B. post /userData)
-app.post('/login', function(req,res,next){
-  var items = {
-    username: req.body.username,
-    password: req.body.password
-  }
-  //Ist der Benutzer registriert wird er angemeldet.
-  mongo.connect(url, function(err, db){
-    if(err){
-      console.log("Fehler beim Herstellen einer Verbindung zu MongoDB");
-      console.log(err);
-    }
-    else{
-      var resultArray = [];
-      var cursor = db.collection('user').find();
-      cursor.forEach(function(doc,err){
-        if(err){
-          console.log("MongoDB kann auf user nicht zugreifen");
-          console.log(err);
-        }
-        else{
-            resultArray.push(doc);
-          }
-        }, function() {
-            db.close();
-            var counter = 0;
-            //Überprüfung der Login Daten
-            for (var i = 0; i < resultArray.length; i++){
-              counter++;
-              console.log(resultArray[i].username);
-              if(resultArray[i].username == items.username && resultArray[i].password == items.password){
-                counter--;
-                console.log("Benutzer gefunden!");
-                accept = 1;
-                //Anmeldung erfolgreich
-                res.end(resultArray[i].username);
-              }
-            }
-            //Anmeldung nicht erfolgreich
-            if(counter == resultArray.length){
-              console.log("Benutzer nicht gefunden");
-              res.end("0");
-              accept = 0;
-            }
-        });
-      }
-    });
-  });
-
-app.post('/empfehlung', function (req, res){
+app.put('/recommendation', function (req, res){
   //Testdaten wurden nur für die Restaurants in der Nähe angelegt (500m Umkreis von TH Mensa)
   //Ermittle Stadtname
   var empfehlung = [];
@@ -401,7 +401,7 @@ app.post('/empfehlung', function (req, res){
                           for(var i = 0; i < 5; i++){
                             //Ist einer der potentiellen Reiseziele/Restaurants in der DB, speichere den Ort in die placeListe
                             if(data3.results[i].name.search(doc.placename) >= 0 ){
-                              console.log("Hinzugefügt");
+                              console.log("Place added");
                               placeList.push(doc);
                             }
                           }
