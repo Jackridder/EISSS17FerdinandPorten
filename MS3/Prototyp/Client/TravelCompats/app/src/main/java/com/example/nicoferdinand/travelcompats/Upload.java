@@ -150,7 +150,7 @@ public class Upload extends AppCompatActivity {
                 if((longitude != 0 && latitude != 0 && maxAmp != 0) || (longitude != 0 && latitude != 0 && (!rating.getText().toString().equals("Bewertung für aktuellen Standort") && !rating.getText().toString().equals("")))){
                     //Erstelle Request
                     final RequestQueue requestQueue = Volley.newRequestQueue(Upload.this);
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, server_url + "/audioData", new Response.Listener<String>() {
                         public void onResponse(String response) {
                             requestQueue.stop();
                         }
@@ -161,7 +161,7 @@ public class Upload extends AppCompatActivity {
                             requestQueue.stop();
                         }
                     }) {
-                        //Post Method
+                        //PUT Method
                         protected Map<String, String> getParams() {
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("noise", maxAmp + "");
@@ -193,7 +193,7 @@ public class Upload extends AppCompatActivity {
                     latitude = location.getLatitude();
                     //Request starten
                     final RequestQueue requestQueue = Volley.newRequestQueue(Upload.this);
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/audioData", new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, server_url + "/audioData", new Response.Listener<String>() {
 
                         public void onResponse(String response) {
                             //Dem Benutzer wird der aktuelle Standort angezeigt zu welchem er Daten hochladen möchte
@@ -208,9 +208,9 @@ public class Upload extends AppCompatActivity {
                             requestQueue.stop();
                         }
                     }) {
-                        //Post Method
+                        //PUT Method
                         protected Map<String, String> getParams() {
-                            Log.d("Post", "Koordinaten übermittelt");
+                            Log.d("PUT", "Koordinaten übermittelt");
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("longitude", longitude+"");
                             params.put("latitude", latitude+"");

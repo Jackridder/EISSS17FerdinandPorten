@@ -63,7 +63,7 @@ public class Profile extends AppCompatActivity implements MultiSpinner.OnMultipl
                     final RequestQueue requestQueue = Volley.newRequestQueue(Profile.this);
 
                     //Erstelle Request an Server.
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/userData/config", new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, server_url + "/userData/config", new Response.Listener<String>() {
 
                         public void onResponse(String response) {
                             requestQueue.stop();
@@ -75,7 +75,7 @@ public class Profile extends AppCompatActivity implements MultiSpinner.OnMultipl
                             requestQueue.stop();
                         }
                     }) {
-                        //Post Method
+                        //PUT Method
                         protected Map<String, String> getParams() {
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("username", Home.user);

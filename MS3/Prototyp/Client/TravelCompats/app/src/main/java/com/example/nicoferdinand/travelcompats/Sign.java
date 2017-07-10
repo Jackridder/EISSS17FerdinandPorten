@@ -63,7 +63,7 @@ public class Sign extends AppCompatActivity {
                     //Request an Server erstellen
                     final RequestQueue requestQueue = Volley.newRequestQueue(Sign.this);
 
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/login", new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, server_url + "/userData", new Response.Listener<String>() {
                         public void onResponse(String response) {
                             Log.e("Response", response);
                             //Benutzer ist nicht angelegt
@@ -83,7 +83,7 @@ public class Sign extends AppCompatActivity {
                             requestQueue.stop();
                         }
                     }) {
-                        //Post Method
+                        //PUT Method
                         protected Map<String, String> getParams() {
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("username", username.getText().toString());

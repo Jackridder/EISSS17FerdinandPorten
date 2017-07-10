@@ -17,7 +17,6 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -62,11 +61,10 @@ public class Recommend extends AppCompatActivity {
                     //Request starten
                     if (longitude != 0) {
                         final RequestQueue requestQueue = Volley.newRequestQueue(Recommend.this);
-                        StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/empfehlung", new Response.Listener<String>() {
+                        StringRequest stringRequest = new StringRequest(Request.Method.PUT, server_url + "/recommendation", new Response.Listener<String>() {
 
                             public void onResponse(String response) {
                                 empfehlungselemente = response;
-                                //alert.setText("Empfehlung: " + empfehlungselemente);
                                 int komma = 0;
                                 int x = 0;
                                 String recommend[] = new String[5];
@@ -105,9 +103,9 @@ public class Recommend extends AppCompatActivity {
                                 requestQueue.stop();
                             }
                         }) {
-                            //Post Method
+                            //PUT Method
                             protected Map<String, String> getParams() {
-                                Log.d("Post", "Koordinaten übermittelt");
+                                Log.d("PUT", "Koordinaten übermittelt");
                                 Map<String, String> params = new HashMap<String, String>();
                                 params.put("longitude", longitude + "");
                                 params.put("latitude", latitude + "");
@@ -170,41 +168,6 @@ public class Recommend extends AppCompatActivity {
             //Für ältere Versionen als Android 6.0
             locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
         }
-
-
-            Log.d("Test", "longitude: " + longitude + " latitude " + latitude);
-            if(longitude != 0 && latitude != 0){
-                final RequestQueue requestQueue = Volley.newRequestQueue(Recommend.this);
-
-                //Erstelle Request an Server. Empfehlung holen
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, server_url + "/Empfehlung", new Response.Listener<String>() {
-
-                    public void onResponse(String response) {
-                        empfehlungselemente = response;
-                        requestQueue.stop();
-                    }
-                }, new Response.ErrorListener() {
-
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("Error", "Errorcode" + error);
-                        requestQueue.stop();
-                    }
-                }) {
-                    //Post Method
-                    protected Map<String, String> getParams() {
-                        Log.d("Gesendet","Hat geklappt!");
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("type","restaurant");
-                        params.put("latitude",latitude+"");
-                        params.put("longitude", longitude+"");
-                        return params;
-                    }
-                };
-
-                //Disable Multiple Requests
-                stringRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 5, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                requestQueue.add(stringRequest);
-            }
 
 
         }
